@@ -9,10 +9,8 @@ import * as Setting from "./Setting";
 
 import {Switch, Route} from 'react-router-dom'
 import TestPage from "./TestPage";
-import DashboardPage from "./DashboardPage";
-import {Badge, Button, Layout, Menu, Tag, Typography, Switch as AntdSwitch} from "antd";
-import TracePage from "./TracePage";
-import * as Backend from "./Backend";
+import DatasetPage from "./DatasetPage";
+import {Layout, Menu, Tag, Typography, Switch as AntdSwitch} from "antd";
 import RulePage from "./RulePage";
 import CanvasPage from "./CanvasPage";
 import WebsitePage from "./WebsitePage";
@@ -21,8 +19,8 @@ import SessionPage from "./SessionPage";
 import ImpressionPage from "./ImpressionPage";
 import PagePage from "./PagePage";
 
-const {Title, Paragraph, Text} = Typography;
-const {Header, Footer, Sider, Content} = Layout;
+const {Text} = Typography;
+const {Header, Footer} = Layout;
 
 class App extends React.Component {
   constructor(props) {
@@ -45,21 +43,15 @@ class App extends React.Component {
 
   componentWillMount() {
     const path = this.getUrlPath();
-    if (path.includes('dashboard')) {
-      this.setState({selectedMenuKey: 2});
-    } else if (path.includes('trace')) {
-      this.setState({selectedMenuKey: 3});
-    } else if (path.includes('canvas')) {
+    if (path.includes('impressions')) {
       this.setState({selectedMenuKey: 4});
-    } else if (path.includes('rule')) {
-      this.setState({selectedMenuKey: 5});
-    } else if (path.includes('pages')) {
-      this.setState({selectedMenuKey: 9});
-    } else if (path.includes('impressions')) {
-      this.setState({selectedMenuKey: 8});
-    } else if (path.includes('sessions')) {
-      this.setState({selectedMenuKey: 7});
     } else if (path.includes('websites')) {
+      this.setState({selectedMenuKey: 2});
+    } else if (path.includes('sessions')) {
+      this.setState({selectedMenuKey: 3});
+    } else if (path.includes('datasets')) {
+      this.setState({selectedMenuKey: 5});
+    } else if (path.includes('rule')) {
       this.setState({selectedMenuKey: 6});
     } else {
       this.setState({selectedMenuKey: 1});
@@ -103,21 +95,21 @@ class App extends React.Component {
                 mode="horizontal"
                 defaultSelectedKeys={[`${this.state.selectedMenuKey}`]}
                 style={{lineHeight: '64px'}}
-                inlineCollapsed={false}
+                // inlineCollapsed={false}
               >
                 <Menu.Item key="1">
                   <a href="/">
                     Get Started
                   </a>
                 </Menu.Item>
-                <Menu.Item key="6">
+                <Menu.Item key="2">
                   <a href="/websites">
                     Websites
                   </a>
                 </Menu.Item>
                 {
                   !this.getUrlPath().includes('sessions') ? null :
-                    <Menu.Item key="7">
+                    <Menu.Item key="3">
                       <a href="#">
                         Sessions
                       </a>
@@ -125,47 +117,23 @@ class App extends React.Component {
                 }
                 {
                   !this.getUrlPath().includes('impressions') ? null :
-                    <Menu.Item key="8">
+                    <Menu.Item key="4">
                       <a href="#">
                         Impressions
                       </a>
                     </Menu.Item>
                 }
-                {
-                  !this.getUrlPath().includes('pages') ? null :
-                    <Menu.Item key="9">
-                      <a href="#">
-                        Pages
-                      </a>
-                    </Menu.Item>
-                }
-                <Menu.Item key="2">
-                  <a href="/dashboard">
+                <Menu.Item key="5">
+                  <a href="/datasets">
                     Dataset
                   </a>
                 </Menu.Item>
-                {
-                  !this.getUrlPath().includes('trace') ? null :
-                    <Menu.Item key="3">
-                      <a href="#">
-                        Trace
-                      </a>
-                    </Menu.Item>
-                }
-                {
-                  !this.getUrlPath().includes('canvas') ? null :
-                    <Menu.Item key="4">
-                      <a href="#">
-                        Canvas
-                      </a>
-                    </Menu.Item>
-                }
-                <Menu.Item key="5">
+                <Menu.Item key="6">
                   <a href="/rule">
                     Rule
                   </a>
                 </Menu.Item>
-                <Menu.Item key='5' style={{float: 'right'}}>
+                <Menu.Item key="100" style={{float: 'right'}}>
                   <a target="_blank" href="https://github.com/microsoft/mouselog">
                     <img alt="GitHub stars" src="https://img.shields.io/github/stars/microsoft/mouselog?style=social" />
                   </a>
@@ -193,15 +161,14 @@ class App extends React.Component {
           </Layout>
           <Switch>
             <Route exact path="/" component={TestPage}/>
-            <Route path="/dashboard/" component={DashboardPage}/>
-            <Route path="/trace/:sessionId" component={TracePage}/>
-            <Route path="/canvas/:sessionId/:traceId" component={CanvasPage}/>
+            <Route path="/datasets/" component={DatasetPage}/>
             <Route path="/rule/" component={RulePage}/>
             <Route exact path="/websites/" component={WebsitePage}/>
             <Route exact path="/websites/:websiteId" component={WebsiteEditPage}/>
             <Route exact path="/websites/:websiteId/sessions" component={SessionPage}/>
             <Route exact path="/websites/:websiteId/sessions/:sessionId/impressions" component={ImpressionPage}/>
             <Route exact path="/websites/:websiteId/impressions" component={ImpressionPage}/>
+            <Route exact path="/websites/:websiteId/impressions/rules/:ruleId" component={ImpressionPage}/>
             <Route exact path="/websites/:websiteId/sessions/:sessionId/impressions/:impressionId/events" component={CanvasPage}/>
             <Route exact path="/websites/:websiteId/pages" component={PagePage}/>
           </Switch>

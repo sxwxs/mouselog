@@ -11,7 +11,7 @@ import (
 type Impression struct {
 	Id          string `xorm:"varchar(100) notnull pk" json:"id"`
 	SessionId   string `xorm:"varchar(100)" json:"sessionId"`
-	WebsiteId   string `xorm:"varchar(100)" json:"websiteId"`
+	WebsiteId   string `xorm:"varchar(100) notnull pk" json:"websiteId"`
 	CreatedTime string `xorm:"varchar(100)" json:"createdTime"`
 	UrlPath     string `xorm:"varchar(500)" json:"urlPath"`
 
@@ -23,7 +23,14 @@ type Impression struct {
 	ClientIp  string `xorm:"varchar(100)" json:"clientIp"`
 	UserId    string `xorm:"varchar(100)" json:"userId"`
 
-	Events []Event `xorm:"mediumtext" json:"events"`
+	Label     int    `json:"label"`
+	Guess     int    `json:"guess"`
+	Reason    string `json:"reason"`
+	RuleId    int    `json:"ruleId"`
+	RuleStart int    `json:"ruleStart"`
+	RuleEnd   int    `json:"ruleEnd"`
+
+	Events []*Event `xorm:"mediumtext" json:"events"`
 }
 
 func GetImpressions(websiteId string, sessionId string, resultCount int, offset int, sortField string, sortOrder string) []*Impression {
@@ -66,8 +73,8 @@ func GetImpressionsAll(websiteId string, resultCount int, offset int, sortField 
 	return impressions
 }
 
-func GetImpression(id string) *Impression {
-	im := Impression{Id: id}
+func GetImpression(id string, websiteId string) *Impression {
+	im := Impression{Id: id, WebsiteId: websiteId}
 	existed, err := ormManager.engine.Get(&im)
 	if err != nil {
 		panic(err)
@@ -80,8 +87,8 @@ func GetImpression(id string) *Impression {
 	}
 }
 
-func updateImpression(id string, impression *Impression) bool {
-	if GetImpression(id) == nil {
+func updateImpression(id string, websiteId string, impression *Impression) bool {
+	if GetImpression(id, websiteId) == nil {
 		return false
 	}
 
@@ -95,7 +102,7 @@ func updateImpression(id string, impression *Impression) bool {
 }
 
 func AddImpression(id string, sessionId string, websiteId string, userId string, trace *Trace) bool {
-	im := Impression{Id: id, SessionId: sessionId, WebsiteId: websiteId, UserId: userId, CreatedTime: getCurrentTime(), UrlPath: trace.Path, Width: trace.Width, Height: trace.Height, PageLoadTime: trace.PageLoadTime, Events: []Event{}}
+	im := Impression{Id: id, SessionId: sessionId, WebsiteId: websiteId, UserId: userId, CreatedTime: getCurrentTime(), UrlPath: trace.Path, Width: trace.Width, Height: trace.Height, PageLoadTime: trace.PageLoadTime, Events: []*Event{}}
 	affected, err := ormManager.engine.Insert(im)
 	if err != nil && !strings.Contains(err.Error(), "Duplicate entry") {
 		panic(err)
@@ -128,7 +135,7 @@ func AddImpressionsSafe(impressions []*Impression) bool {
 			end = len(impressions)
 		}
 
-		tmp := impressions[start : end]
+		tmp := impressions[start:end]
 		fmt.Printf("Add impressions: [%d - %d].\n", start, end)
 		if AddImpressions(tmp) {
 			affected = true
@@ -156,20 +163,20 @@ func DeleteImpressions(websiteId string) bool {
 	return affected != 0
 }
 
-func AppendTraceToImpression(id string, trace *Trace) {
+func AppendTraceToImpression(id string, websiteId string, trace *Trace) {
 	if len(trace.Events) == 0 {
 		return
 	}
 	impressionMapMutex.TryLock(id)
 
-	impression := GetImpression(id)
+	impression := GetImpression(id, websiteId)
 
 	// Merge Sort
 	impEvtCount := len(impression.Events)
 	if impEvtCount == 0 || impression.Events[impEvtCount-1].Id < trace.Events[0].Id {
 		impression.Events = append(impression.Events, trace.Events...)
 	} else {
-		var tmp []Event
+		var tmp []*Event
 		i := 0
 		for {
 			if impression.Events[i].Id < trace.Events[0].Id {
@@ -183,7 +190,7 @@ func AppendTraceToImpression(id string, trace *Trace) {
 		impression.Events = append(tmp, impression.Events[i:]...)
 	}
 
-	updateImpression(id, impression)
+	updateImpression(id, websiteId, impression)
 
 	impressionMapMutex.Unlock(id)
 }
