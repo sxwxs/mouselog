@@ -6,13 +6,14 @@ package detect
 const (
 	RuleNone = iota
 	RuleStraightLine
-	RuleNearStraightLine
+	//RuleNearStraightLine
 	RuleEquallySpacedPoints
 	RuleSinglePoint
 	RuleOverspeed
 	RuleRootlessClick
 	RuleHighPointDensity
-	RuleNegativeCursor
+	//RuleNegativeCursor
+	//RuleTimeConflict
 	RuleUpperLimit
 )
 
@@ -24,8 +25,8 @@ func GetRuleName(rule int) string {
 		return "Human"
 	case RuleStraightLine:
 		return "Straight line found"
-	case RuleNearStraightLine:
-		return "Near straight line found"
+	//case RuleNearStraightLine:
+	//	return "Near straight line found"
 	case RuleEquallySpacedPoints:
 		return "Multiple equally spaced points found"
 	case RuleSinglePoint:
@@ -36,8 +37,10 @@ func GetRuleName(rule int) string {
 		return "Rootless click found"
 	case RuleHighPointDensity:
 		return "Point density too high"
-	case RuleNegativeCursor:
-		return "Negative cursor found"
+	//case RuleNegativeCursor:
+	//	return "Negative cursor found"
+	//case RuleTimeConflict:
+	//	return "Time conflict found"
 	default:
 		return ""
 	}

@@ -6,22 +6,12 @@ package detect
 import "github.com/microsoft/mouselog/trace"
 
 func checkBot(events []*trace.Event) (int, string, int, int, int) {
-	//isBot, reason, rule, start, end := checkStraightLine(events)
-	//if isBot != 0 {
-	//	return isBot, reason, rule, start, end
-	//}
-
-	isBot, reason, rule, start, end := checkNearStraightLine(events)
+	isBot, reason, rule, start, end := checkOverspeed(events)
 	if isBot != 0 {
 		return isBot, reason, rule, start, end
 	}
 
 	isBot, reason, rule, start, end = checkSinglePoint(events)
-	if isBot != 0 {
-		return isBot, reason, rule, start, end
-	}
-
-	isBot, reason, rule, start, end = checkOverspeed(events)
 	if isBot != 0 {
 		return isBot, reason, rule, start, end
 	}
@@ -32,11 +22,6 @@ func checkBot(events []*trace.Event) (int, string, int, int, int) {
 	}
 
 	isBot, reason, rule, start, end = checkHighPointDensity(events)
-	if isBot != 0 {
-		return isBot, reason, rule, start, end
-	}
-
-	isBot, reason, rule, start, end = checkNegativeCursor(events)
 	if isBot != 0 {
 		return isBot, reason, rule, start, end
 	}
